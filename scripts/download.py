@@ -4,33 +4,48 @@ import argparse
 import firecloud.api as fapi
 
 
+# TODO: get these from command-line arguments
 namespace = "broad-firecloud-dsde-methods"
 workspace = "FireplaceSample"
 
 
 def getstuff(namespace, workspace):
-    for config in configs.json():
-        config_namespace = config["namespace"]
-        config_name = config["name"]
+    #workspace = fapi.get_workspace(namespace, workspace)
+    #print(workspace.json())
+    #method_configurations = fapi.get_method_configurations(namespace, workspace)
+    workspace_configs = fapi.list_workspace_configs(namespace, workspace)
 
-        method_config = fapi.get_workspace_config(namespace, workspace, config_namespace, config_name)
+    for workspace_config in workspace_configs.json():
+        print(workspace_config)
 
-        method_namespace = config["methodRepoMethod"]["methodNamespace"]
-        method_name = config["methodRepoMethod"]["methodName"]
-        method_version = config["methodRepoMethod"]["methodVersion"]
+    for workspace_config in workspace_configs.json():
+        workspace_config_namespace = workspace_config["namespace"]
+        workspace_config_name = workspace_config["name"]
 
-        input_outputs = fapi.get_inputs_outputs(method_namespace, method_name, method_version)
-        print(input_outputs.json())
+        workspace_config_details = fapi.get_workspace_config(namespace, workspace, workspace_config_namespace, workspace_config_name)
+        print(workspace_config_details.json())
 
-#workspace = fapi.get_workspace(namespace, workspace)
-#print(workspace.json())
-#method_configurations = fapi.get_method_configurations(namespace, workspace)
-configs = fapi.list_workspace_configs(namespace, workspace)
+        method_namespace = workspace_config["methodRepoMethod"]["methodNamespace"]
+        method_name = workspace_config["methodRepoMethod"]["methodName"]
+        method_version = workspace_config["methodRepoMethod"]["methodVersion"]
 
-for config in configs:
-   print(config)
+        inputs_outputs = fapi.get_inputs_outputs(method_namespace, method_name, method_version)
+        # print(input_outputs.json())
+
+        inputs_outputs_json = inputs_outputs.json()
+        print(inputs_outputs_json)
+        # input_types = { n:t for (n,t) in inputs_outputs_json["inputs"].items }
+        input_details = {}
+        for i in inputs_outputs_json["inputs"]:
+            input_details[i["name"]] = i
+
+        inputs = workspace_config_details.json()["inputs"]
+        for input_name in inputs:
+            [task_name, variable] = input_name.split(".")
+            print(task_name + "\t" + variable + "\t" + inputs[input_name] + "\t" + input_details[input_name]["inputType"] + "\t" + str(input_details[input_name]["optional"]))
 
 
+getstuff(namespace, workspace)
 
 #fapi.get_workspace_config(namespace, workspace, )
 
