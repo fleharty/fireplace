@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-
+import csv
+import pandas as pd
 import argparse
 import firecloud.api as fapi
 
@@ -45,12 +46,31 @@ def getstuff(namespace, workspace):
 
         input_details = {i["name"]: i for i in inputs_outputs_json["inputs"]}
         config_inputs = get_inputs(workspace_config_details.json(), input_details)
-        print(f"{config_inputs=}")
+        print(f"{config_inputs}")
 
         output_details = {i["name"]: i for i in inputs_outputs_json["outputs"]}
         config_outputs = get_outputs(workspace_config_details.json(), output_details)
-        print(f"{config_outputs=}")
+        print(f"{config_outputs}")
 
+        # Get WDL associated with method
+        wdl_content = fapi.get_repository_method(method_namespace, method_name, method_version).json()["payload"]
+        print
+        print(wdl_content)
+
+        writeInputs(f"{method_namespace}.{method_name}.{method_version}.inputs.tsv", config_inputs)
+        
+
+
+
+
+def writeInputs(filename, content):
+
+    with open(filename, 'w', newline='\n', encoding='utf-8') as f:
+
+        writer = csv.writer(f, delimiter = '\t', quoting=csv.QUOTE_NONE)
+
+        writer.writerow(["Taskname", "Variable", "Value", "Type", "Required"])
+        writer.writerows(content)
 
 getstuff(args.namespace, args.workspace)
 
