@@ -3,10 +3,10 @@
 import argparse
 import firecloud.api as fapi
 
-
-# TODO: get these from command-line arguments
-namespace = "broad-firecloud-dsde-methods"
-workspace = "FireplaceSample"
+parser = argparse.ArgumentParser(description='Download Terra Workspace.')
+parser.add_argument('--namespace', dest='namespace', default = "broad-firecloud-dsde-methods")
+parser.add_argument('--workspace', dest='workspace', default = "FireplaceSample")
+args = parser.parse_args()
 
 
 def getstuff(namespace, workspace):
@@ -45,7 +45,7 @@ def getstuff(namespace, workspace):
             print(task_name + "\t" + variable + "\t" + inputs[input_name] + "\t" + input_details[input_name]["inputType"] + "\t" + str(input_details[input_name]["optional"]))
 
 
-getstuff(namespace, workspace)
+getstuff(args.namespace, args.workspace)
 
 #fapi.get_workspace_config(namespace, workspace, )
 
