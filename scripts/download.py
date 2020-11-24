@@ -9,6 +9,18 @@ parser.add_argument('--workspace', dest='workspace', default = "FireplaceSample"
 args = parser.parse_args()
 
 
+def get_inputs(config, input_details):
+    inputs = config["inputs"]
+    return [[*k.split("."), v, input_details[k]["inputType"], str(input_details[k]["optional"])]
+            for k, v in sorted(inputs.items())]
+
+
+def get_outputs(config, output_details):
+    outputs = config["outputs"]
+    return [[*k.split("."), v, output_details[k]["outputType"]]
+            for k, v in sorted(outputs.items())]
+
+
 def getstuff(namespace, workspace):
     #workspace = fapi.get_workspace(namespace, workspace)
     #print(workspace.json())
@@ -16,14 +28,11 @@ def getstuff(namespace, workspace):
     workspace_configs = fapi.list_workspace_configs(namespace, workspace)
 
     for workspace_config in workspace_configs.json():
-        print(workspace_config)
-
-    for workspace_config in workspace_configs.json():
         workspace_config_namespace = workspace_config["namespace"]
         workspace_config_name = workspace_config["name"]
 
         workspace_config_details = fapi.get_workspace_config(namespace, workspace, workspace_config_namespace, workspace_config_name)
-        print(workspace_config_details.json())
+        # print(workspace_config_details.json())
 
         method_namespace = workspace_config["methodRepoMethod"]["methodNamespace"]
         method_name = workspace_config["methodRepoMethod"]["methodName"]
@@ -33,16 +42,14 @@ def getstuff(namespace, workspace):
         # print(input_outputs.json())
 
         inputs_outputs_json = inputs_outputs.json()
-        print(inputs_outputs_json)
-        # input_types = { n:t for (n,t) in inputs_outputs_json["inputs"].items }
-        input_details = {}
-        for i in inputs_outputs_json["inputs"]:
-            input_details[i["name"]] = i
 
-        inputs = workspace_config_details.json()["inputs"]
-        for input_name in inputs:
-            [task_name, variable] = input_name.split(".")
-            print(task_name + "\t" + variable + "\t" + inputs[input_name] + "\t" + input_details[input_name]["inputType"] + "\t" + str(input_details[input_name]["optional"]))
+        input_details = {i["name"]: i for i in inputs_outputs_json["inputs"]}
+        config_inputs = get_inputs(workspace_config_details.json(), input_details)
+        print(f"{config_inputs=}")
+
+        output_details = {i["name"]: i for i in inputs_outputs_json["outputs"]}
+        config_outputs = get_outputs(workspace_config_details.json(), output_details)
+        print(f"{config_outputs=}")
 
 
 getstuff(args.namespace, args.workspace)
