@@ -23,9 +23,6 @@ def get_outputs(config, output_details):
 
 
 def getstuff(namespace, workspace):
-    #workspace = fapi.get_workspace(namespace, workspace)
-    #print(workspace.json())
-    #method_configurations = fapi.get_method_configurations(namespace, workspace)
     workspace_configs = fapi.list_workspace_configs(namespace, workspace)
 
     for workspace_config in workspace_configs.json():
@@ -54,20 +51,19 @@ def getstuff(namespace, workspace):
 
         # Get WDL associated with method
         wdl_content = fapi.get_repository_method(method_namespace, method_name, method_version).json()["payload"]
-        print
-        print(wdl_content)
+        fwdl = open(f"{method_namespace}.{method_name}.{method_version}.wdl", "w")
+        fwdl.write(wdl_content)
+        fwdl.close()
 
-        writeInputs(f"{method_namespace}.{method_name}.{method_version}.inputs.tsv", config_inputs)
-        
+        writeVariablesToFile(f"{method_namespace}.{method_name}.{method_version}.inputs.tsv", config_inputs)
+        writeVariablesToFile(f"{method_namespace}.{method_name}.{method_version}.outputs.tsv", config_outputs)
 
 
-
-
-def writeInputs(filename, content):
+def writeVariablesToFile(filename, content):
 
     with open(filename, 'w', newline='\n', encoding='utf-8') as f:
 
-        writer = csv.writer(f, delimiter = '\t', quoting=csv.QUOTE_NONE)
+        writer = csv.writer(f, delimiter = '\t', quoting=csv.QUOTE_MINIMAL)
 
         writer.writerow(["Taskname", "Variable", "Value", "Type", "Required"])
         writer.writerows(content)
