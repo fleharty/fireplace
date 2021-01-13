@@ -2,10 +2,11 @@ workflow HelloWorld {
 
 	String hello_world_string
   	String hello_world_string2
+    String hello_world_string3
 
-  
-  	call echo { 
-  		input: s = hello_world_string, 
+
+  	call echo {
+  		input: s = hello_world_string,
                s2= hello_world_string2
 	}
 }

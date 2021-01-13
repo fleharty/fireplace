@@ -1,3 +1,4 @@
 Task name	Variable	Type	Attribute
 HelloWorld	hello_world_string	String	"String one"
-HelloWorld	hello_world_string2	Sttring	"String two"
+HelloWorld	hello_world_string2	String	"String two"
+HelloWorld	hello_world_string3	String	"String three"
